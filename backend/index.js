@@ -1,5 +1,4 @@
 const axios = require('axios');
-const readline = require('node:readline');
 function calculatePossibleValues(hand) {
     let totalWithoutAces = 0;
     let aceCount = 0;
