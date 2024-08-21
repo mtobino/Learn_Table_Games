@@ -57,14 +57,14 @@ const getCardDeck= async () => {
  * @param dealer    The dealer, a CPU
  */
 function displayResults(player, dealer){
-    if(player.Hit21 && dealer.Hit21){
-        console.log("Both hit 21: Push!");
+    if(player.Blackjack && dealer.Blackjack){
+        console.log("Both hit Blackjack: Push!");
     }
-    else if(player.Hit21 && !dealer.Hit21){
-        console.log("Player wins with 21!");
+    else if(player.Blackjack && !dealer.Blackjack){
+        console.log("Player wins with 21: Blackjack!");
     }
-    else if(dealer.Hit21 && !player.Hit21){
-        console.log("Dealer wins with 21!");
+    else if(dealer.Blackjack && !player.Blackjack){
+        console.log("Dealer wins with 21: Blackjack :(");
     }
     else if(dealer.Bust){
         console.log("Player wins, Dealer busted!");
@@ -72,9 +72,9 @@ function displayResults(player, dealer){
     else if(player.Bust){
         console.log("Player busted :(");
     }
-    else if(player.EqualToOrOver17 && dealer.EqualToOrOver17){
-        let playerMax = player.handValue.filter(value => value < 21).sort((a, b) => b - a)[0];
-        let dealerMax = dealer.handValue.filter(value => value < 21).sort((a, b) => b - a)[0];
+    else if(player.Stand && dealer.Stand){
+        let playerMax = player.handValue.filter(value => value <= 21).sort((a, b) => b - a)[0];
+        let dealerMax = dealer.handValue.filter(value => value <= 21).sort((a, b) => b - a)[0];
         if(playerMax > dealerMax){
             console.log(`Player wins with ${playerMax}, dealers has ${dealerMax}`);
         }
@@ -95,7 +95,7 @@ function displayResults(player, dealer){
  * Rudimentary Blackjack simulator, grabs a deck, distributes cards, and then runs a sim of what the player
  * would usually do
  *
- * TODO: Add double downs, standing, splitting
+ * TODO: Add double downs, standing at appropriate times against dealer, splitting
  *
  * @returns {Promise<void>} no returns
  */
@@ -103,15 +103,16 @@ const playRound = async () => {
     let { deck_id } = await getCardDeck();
     let dealer = {
         cards : [],
-        Hit21: false,
-        EqualToOrOver17: false,
+        Blackjack: false,
+        Stand: false,
         Bust: false,
         handValue: []
     };
     let player = {
         cards : [],
-        Hit21: false,
-        EqualToOrOver17: false,
+        Blackjack: false,
+        Stand: false,
+        Split: false,
         Bust: false,
         handValue: []
     };
@@ -128,26 +129,32 @@ const playRound = async () => {
     });
     let playerValueCalc = calculatePossibleValues(player.cards);
     let dealerValueCalc = calculatePossibleValues(dealer.cards);
-    fixPlayer(player, playerValueCalc);
-    fixPlayer(dealer, dealerValueCalc);
+
+    player.Blackjack = playerValueCalc.includes(21);
+    dealer.Blackjack = dealerValueCalc.includes(21);
+
+    fixPlayer(player, playerValueCalc, dealer);
+    fixDealer(dealer, dealerValueCalc);
+
     console.log(`Player starts with: ${player.cards[0].value} and ${player.cards[1].value}`);
     console.log(`Dealer starts with: ${dealer.cards[0].value} and ${dealer.cards[1].value}`);
 
-    while( !player.Bust && !player.Hit21 && !player.EqualToOrOver17 && !dealer.Hit21 )
+    while( !player.Bust && !player.Blackjack && !player.Stand && !dealer.Blackjack )
     {
+
         let newCard = await dealNumberOfCards(deck_id, 1);
         console.log(`Player received a ${newCard[0].value}`);
         player.cards.push(newCard[0]);
         playerValueCalc = calculatePossibleValues(player.cards);
-        fixPlayer(player, playerValueCalc);
+        fixPlayer(player, playerValueCalc, dealer);
     }
 
-    while( !player.Bust && !dealer.Hit21 && !dealer.EqualToOrOver17 && !dealer.Bust){
+    while( !player.Bust && !player.Blackjack && !dealer.Blackjack && !dealer.Stand && !dealer.Bust){
          let newCard = await dealNumberOfCards(deck_id, 1);
          console.log(`Dealer received a ${newCard[0].value}`);
          dealer.cards.push(newCard[0]);
          dealerValueCalc = calculatePossibleValues(dealer.cards);
-         fixPlayer(dealer, dealerValueCalc)
+         fixDealer(dealer, dealerValueCalc)
     }
     displayResults(player, dealer);
 
@@ -156,16 +163,34 @@ const playRound = async () => {
 /**
  * Take any player and adjust their logic values based on the scores they have
  *
- * @param player            The current player being fixed, can either be you or the dealer
+ * @param dealer            The dealer being fixed
  * @param playerValueCalc   The calculated score
  */
-function fixPlayer (player, playerValueCalc){
-    player.EqualToOrOver17 = playerValueCalc.filter(value =>  value >= 17 && value < 21).length > 0;
-    player.Hit21 = playerValueCalc.includes(21);
+function fixDealer (dealer, playerValueCalc){
+    dealer.Stand = playerValueCalc.filter(value =>  value >= 17 && value <= 21).length > 0;
+    dealer.Bust = playerValueCalc.every(value => value > 21);
+    dealer.handValue = playerValueCalc;
+}
+
+/**
+ * Take any player and adjust their logic values based on the scores they have
+ *
+ * @param   player            The current player being fixed
+ * @param   playerValueCalc   The calculated score
+ * @param   dealer
+ */
+function fixPlayer (player, playerValueCalc, dealer){
+    let equalToOrOver17 = playerValueCalc.filter(value =>  value >= 17 && value <= 21).length > 0;
+    player.Stand = shouldStand(equalToOrOver17, dealer, playerValueCalc);
     player.Bust = playerValueCalc.every(value => value > 21);
     player.handValue = playerValueCalc;
 }
 
+function shouldStand(equalToOrOver17, dealer, playerValueCalc) {
+    return equalToOrOver17 ||
+        ( ( dealer.cards[0].value >= 2 && dealer.cards[0].value <= 6 )
+            && playerValueCalc.filter(value => value >= 12 && value <= 16).length > 0 );
+}
 
 /**
  * Deal a variable number of cards depending on how many are needed
