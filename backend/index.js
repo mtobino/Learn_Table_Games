@@ -180,16 +180,25 @@ function fixDealer (dealer, playerValueCalc){
  * @param   dealer
  */
 function fixPlayer (player, playerValueCalc, dealer){
-    let equalToOrOver17 = playerValueCalc.filter(value =>  value >= 17 && value <= 21).length > 0;
-    player.Stand = shouldStand(equalToOrOver17, dealer, playerValueCalc);
+    player.Stand = shouldStand(dealer, playerValueCalc);
     player.Bust = playerValueCalc.every(value => value > 21);
     player.handValue = playerValueCalc;
 }
 
-function shouldStand(equalToOrOver17, dealer, playerValueCalc) {
-    return equalToOrOver17 ||
-        ( ( dealer.cards[0].value >= 2 && dealer.cards[0].value <= 6 )
-            && playerValueCalc.filter(value => value >= 12 && value <= 16).length > 0 );
+/**
+ * If the player is within the range of 12-16 inclusive, AND the dealer's first card is in the range of 2-6, Stand
+ * OR
+ * If the player has a soft 17 or higher, Stand
+ *
+ * @param dealer            The dealers hand
+ * @param playerValueCalc   The players possible hand
+ * @returns {boolean}       True, iff the player should stand
+ */
+function shouldStand( dealer, playerValueCalc) {
+    let equalToOrOver17 = playerValueCalc.filter(value =>  value >= 17 && value <= 21).length > 0;
+    let dealerInRange = dealer.cards[0].value >= 2 && dealer.cards[0].value <= 6;
+    let playerInRange = playerValueCalc.filter(value => value >= 12 && value <= 16).length > 0
+    return equalToOrOver17 || (dealerInRange && playerInRange);
 }
 
 /**
