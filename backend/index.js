@@ -238,10 +238,27 @@ function shouldStand( dealer, player) {
     return equalToOrOver17 || (dealerInRange && playerInRange);
 }
 
+/**
+ * Returns whether a value is within a range inclusive on both sides
+ *
+ * @param value         The value being tested
+ * @param min           The minimum range
+ * @param max           The maximum range
+ * @returns {boolean}   True iff the value is within the range inclusive
+ */
 function inRange(value, min, max){
     return value >= min && value <= max;
 }
 
+/**
+ * Takes in the handValues array and determines if the value contains a soft hand (EX Below)
+ * EX: [6, 16] contains a soft 16
+ * EX: [14, 24] does not contain a soft hand
+ *
+ * @define soft hands are hands that have an ace and thus can use the ace as a 1 or 11 without going over 21
+ * @param handValues    The hand values being tested
+ * @returns {boolean}   True iff the values contain a soft hand
+ */
 function isSoft(handValues)
 {
     return handValues.filter(value => value <= 21).length > 1;
