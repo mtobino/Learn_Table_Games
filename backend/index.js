@@ -137,7 +137,7 @@ const playRound = async () => {
         }
         oscillator = !oscillator;
     });
-    firstTurn(player, dealer);
+    setupForFirstTurn(player, dealer);
 
     while( !player.hand[0].bust && !player.blackjack && !player.hand[0].stand && !dealer.blackjack )
     {
@@ -157,7 +157,7 @@ const playRound = async () => {
     displayResults(player, dealer);
 
 }
-function firstTurn(player, dealer){
+function setupForFirstTurn(player, dealer){
     // Calculate starting hands and positions
     let playerStartingHand = player.hand[0];
     let dealerStartingHand = dealer.hand;
@@ -175,8 +175,52 @@ function firstTurn(player, dealer){
     console.log(`Dealer starts with: ${dealer.hand.cards[0].value} and ${dealer.hand.cards[1].value}`);
 }
 
-function determineSecondTurnAction(player, dealer){
-    
+function playerNormalTurn(player, handNum, dealer){}
+function playerSplitTurn(player, dealer){}
+function dealerTurn(player, dealer){}
+
+function determineFirstTurnAction(player, dealer){
+    if(player.blackjack || dealer.blackjack)
+    {
+        return PLAYER_STANDS;
+    }
+
+    let playerHand = player.hand[0];
+    if(playerHand.stand)
+    {
+        return PLAYER_STANDS;
+    }
+
+    let doubleDown = shouldDoubleDown(playerHand, dealer.hand);
+    if(doubleDown){
+        return PLAYER_DOUBLE_DOWNS;
+    }
+
+}
+
+function shouldDoubleDown(playerHand, dealerHand){
+    let dealerFaceUpCardValue = getTrueCardValue(dealerHand.cards[0].value);
+    let playerHandValue = playerHand.handValue[0];
+    if(playerHandValue === 9 && inRange(dealerFaceUpCardValue, 3, 6)){
+        return true;
+    }
+    else if(playerHandValue === 10 && inRange(dealerFaceUpCardValue, 2, 9))
+    {
+        return true;
+    }
+    else return playerHandValue === 11 && inRange(dealerFaceUpCardValue, 2, 10);
+}
+
+function getTrueCardValue(cardValue){
+    if(cardValue === 'KING' || cardValue === "QUEEN" || cardValue === 'JACK'){
+        return 10;
+    }
+    else if(cardValue === 'ACE'){
+        return 11;
+    }
+    else{
+        return cardValue;
+    }
 }
 
 /**
