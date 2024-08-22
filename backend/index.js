@@ -77,8 +77,9 @@ function displayResults(player, dealer){
         console.log("Player busted :(");
     }
     else if(player.hand[0].stand && dealer.hand.stand){
-        let playerMax = player.hand[0].handValue.filter(value => value <= 21).sort((a, b) => b - a)[0];
-        let dealerMax = dealer.hand.handValue.filter(value => value <= 21).sort((a, b) => b - a)[0];
+
+        let playerMax = Math.max(...player.hand[0].handValue.filter(value => value <= 21));
+        let dealerMax = Math.max(...dealer.hand.handValue.filter(value => value <= 21));
         if(playerMax > dealerMax){
             console.log(`Player wins with ${playerMax}, dealers has ${dealerMax}`);
         }
@@ -158,17 +159,17 @@ const playRound = async () => {
 }
 function firstTurn(player, dealer){
     // Calculate starting hands and positions
-    let playerValueCalc = calculatePossibleValues(player.hand[0].cards);
-    let dealerValueCalc = calculatePossibleValues(dealer.hand.cards);
+    let playerStartingHand = player.hand[0];
+    let dealerStartingHand = dealer.hand;
     // give players their hand values
-    player.hand[0].handValue = playerValueCalc;
-    dealer.hand.handValue = playerValueCalc;
+    playerStartingHand.handValue = calculatePossibleValues(playerStartingHand.cards);
+    dealerStartingHand.handValue = calculatePossibleValues(dealerStartingHand.cards);
     // adjust player information depending on their hand values
     updatePlayer(player, dealer);
     updateDealer(dealer);
     // check for first turn blackjacks
-    player.blackjack = playerValueCalc.includes(21);
-    dealer.blackjack = dealerValueCalc.includes(21);
+    player.blackjack = playerStartingHand.handValue.includes(21);
+    dealer.blackjack = dealerStartingHand.handValue.includes(21);
     // Display current status
     console.log(`Player starts with: ${player.hand[0].cards[0].value} and ${player.hand[0].cards[1].value}`);
     console.log(`Dealer starts with: ${dealer.hand.cards[0].value} and ${dealer.hand.cards[1].value}`);
@@ -198,7 +199,7 @@ function updateDealer (dealer){
  */
 function updatePlayer (player, dealer) {
     player.hand[0].handValue = calculatePossibleValues(player.hand[0].cards);
-    player.hand[0].stand = shouldStand(dealer, player.hand[0].handValue);
+    player.hand[0].stand = shouldStand(dealer, player);
     player.hand[0].bust = player.hand[0].handValue.every(value => value > 21);
 }
 /**
@@ -206,15 +207,44 @@ function updatePlayer (player, dealer) {
  * OR
  * If the player has a soft 17 or higher, Stand
  *
- * @param dealer            The dealers hand
- * @param playerValueCalc   The players possible hand
+ * @param dealer            The dealer
+ * @param player            The player
  * @returns {boolean}       True, iff the player should stand
  */
-function shouldStand( dealer, playerValueCalc) {
-    let equalToOrOver17 = playerValueCalc.filter(value =>  value >= 17 && value <= 21).length > 0;
-    let dealerInRange = dealer.hand.cards[0].value >= 2 && dealer.hand.cards[0].value <= 6;
-    let playerInRange = playerValueCalc.filter(value => value >= 12 && value <= 16).length > 0
+function shouldStand( dealer, player) {
+
+    let handValues = player.hand[0].handValue;
+    let dealerCardValue = dealer.hand.cards[0].value;
+
+    if(isSoft(handValues)){
+        let softMax = Math.max(...handValues);
+        if(softMax < 18){
+            return false;
+        }
+        else if(softMax === 18){
+            return inRange(dealerCardValue, 9, 10) || dealerCardValue === "ACE";
+        }
+        else{
+            return true;
+        }
+    }
+    if(handValues.includes(12)) {
+        return inRange(dealerCardValue, 4, 6);
+    }
+
+    let equalToOrOver17 = handValues.filter(value =>  inRange(value, 17, 21) ).length > 0;
+    let dealerInRange = inRange(dealerCardValue, 2, 6);
+    let playerInRange = handValues.filter(value => inRange(value, 12, 16)).length > 0
     return equalToOrOver17 || (dealerInRange && playerInRange);
+}
+
+function inRange(value, min, max){
+    return value >= min && value <= max;
+}
+
+function isSoft(handValues)
+{
+    return handValues.filter(value => value <= 21).length > 1;
 }
 
 /**
