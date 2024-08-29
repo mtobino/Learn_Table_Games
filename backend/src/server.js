@@ -17,21 +17,8 @@ app.use(express.json());
 // app.get(/^(?!\/api).+/, (req, res) => {
 //     res.sendFile(path.join(__dirname, '../build/index.html'));
 // })
+app.use('/api', require('./routes/routes'));
 
-app.get("/api/blackjack/query/", (req, res) => {
-    // Request would look like "http:localhost:8000/api/blackjack/query?cards=1,2,ACE
-    const { cards }  = req.query;
-    console.log(cards);
-    res.send(JSON.stringify(cards.split(',')));
-});
-
-app.get("/api/blackjack/params/:cards",(req, res) =>{
-    // Request would look like "http:localhost:8000/api/blackjack/params/1,2,ACE
-    const { cards }  = req.params;
-    // To make it an array of values for future function, do cards.split(',') to make the above request be ["1", "2", "ACE"]
-    console.log(cards);
-    res.send(JSON.stringify(cards.split(',')));
-});
 
 app.get("/home", (req, res) => {
     res.send(JSON.stringify("Hello"));
