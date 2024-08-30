@@ -19,7 +19,6 @@ app.use(express.json());
 // })
 app.use('/api', require('./routes/routes'));
 
-
 app.get("/home", (req, res) => {
     res.send(JSON.stringify("Hello"));
 } )

@@ -398,7 +398,7 @@ function getTrueCardValue(cardValue){
         return 11;
     }
     else{
-        return Number(cardValue);
+        return parseInt(cardValue, 10);
     }
 }
 
