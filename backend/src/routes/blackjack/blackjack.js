@@ -2,7 +2,7 @@ const express = require('express');
 const router = express.Router();
 const axios = require('axios');
 require('dotenv').config();
-const { suggestedAction, getSuggestedActionMessage } = require('./blackjack-helpers');
+const { getSuggestedAction, getSuggestedActionMessage } = require('./blackjack-helpers');
 
 /**
  * Send the deck to the client
@@ -24,7 +24,7 @@ router.get('/suggested-next-move', (req, res) =>{
     const { playerCards, dealerFaceUpCard } = req.query;
     const cardValues = playerCards.split(',');
 
-    const playerRecommendedAction = suggestedAction(cardValues, dealerFaceUpCard);
+    const playerRecommendedAction = getSuggestedAction(cardValues, dealerFaceUpCard);
     res.send(JSON.stringify({
         recommendedAction : playerRecommendedAction,
         recommendedActionMessage: getSuggestedActionMessage(playerRecommendedAction)
