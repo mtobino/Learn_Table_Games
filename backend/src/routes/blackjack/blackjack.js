@@ -10,6 +10,7 @@ const { getSuggestedAction, getSuggestedActionMessage } = require('./blackjack-h
 router.get('/get-deck', async (req, res) => {
     try {
         const response = await axios.get('https://deckofcardsapi.com/api/deck/new/shuffle/?deck_count=6');
+        console.log('New Deck called for');
         res.send(response.data);
     } catch (e) {
         console.error(e);

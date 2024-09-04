@@ -1,23 +1,29 @@
-import {useEffect, useState} from "react";
-import axios from "axios";
+import { useEffect } from "react";
+import { connect } from "react-redux";
+import { loadDeck } from "../redux/thunks";
+import { getDeckId, isLoading} from "../redux/selectors";
 
-const BlackjackPage = () =>{
-    const [cardDeckID, setCardDeckID] = useState('');
+const BlackjackPage = ({ startLoadingDeck, deckId, isLoading }) =>{
 
     useEffect( () => {
-        async function fetchCardDeck() {
-            const response = await axios.get('api/blackjack/get-deck');
-            const { deck_id } = response.data;
-            setCardDeckID(deck_id);
-        }
-        fetchCardDeck();
+        startLoadingDeck();
     }, []);
-
-    return(
+    const content = (
         <>
             <h1>Welcome to Blackjack!</h1>
-            <p>Your card deck can be found here: {cardDeckID}</p>
+            <p>Your card deck can be found here: {deckId}</p>
         </>
     );
+    const loadingMessage = <div>Loading...</div>
+    return isLoading ? loadingMessage : content;
 };
-export default BlackjackPage;
+
+const mapStateToProps = state =>({
+    deckId: getDeckId(state),
+    isLoading: isLoading(state),
+});
+const mapDispatchToProps = dispatch =>({
+    startLoadingDeck: () => dispatch(loadDeck()),
+});
+
+export default connect(mapStateToProps, mapDispatchToProps)(BlackjackPage);
