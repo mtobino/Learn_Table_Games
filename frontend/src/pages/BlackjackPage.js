@@ -1,17 +1,21 @@
 import { useEffect } from "react";
 import { connect } from "react-redux";
-import { loadDeck } from "../redux/thunks";
+import { loadDeck, startTheGame, resetTheGame } from "../redux/thunks";
 import { getDeckId, isLoading} from "../redux/selectors";
+import PlayerCards from "../components/PlayerCards";
 
-const BlackjackPage = ({ startLoadingDeck, deckId, isLoading }) =>{
+const BlackjackPage = ({ startLoadingDeck, deckId, isLoading, beginGame, reset }) =>{
 
     useEffect( () => {
         startLoadingDeck();
+        reset(deckId);
+        beginGame(deckId);
     }, []);
     const content = (
         <>
             <h1>Welcome to Blackjack!</h1>
             <p>Your card deck can be found here: {deckId}</p>
+            <PlayerCards/>
         </>
     );
     const loadingMessage = <div>Loading...</div>
@@ -24,6 +28,8 @@ const mapStateToProps = state =>({
 });
 const mapDispatchToProps = dispatch =>({
     startLoadingDeck: () => dispatch(loadDeck()),
+    beginGame: (deckId) => dispatch(startTheGame(deckId)),
+    reset: (deckId) => dispatch(resetTheGame(deckId)),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BlackjackPage);

@@ -1,4 +1,5 @@
 import {
+    RESET_GAME,
     PLAYER_STANDS,
     PLAYER_DRAW_CARD,
     PLAYER_SPLIT_CARDS,
@@ -6,7 +7,10 @@ import {
     DEALER_DRAW_CARD,
     LOAD_DECK_FAILURE,
     LOAD_DECK_IN_PROGRESS,
-    LOAD_DECK_SUCCESS
+    LOAD_DECK_SUCCESS,
+    LOAD_CARD_FAILURE,
+    LOAD_CARD_IN_PROGRESS,
+    LOAD_CARD_SUCCESS
 } from './actions';
 import { calculatePossibleValues } from '../ultility/blackjack-utility';
 
@@ -47,12 +51,14 @@ export const blackjack = (state = initialState, actions) => {
             const { card, handNum } = payload;
             const updatedHandValue = calculatePossibleValues([...Array.from(state.blackjackData.playerData.hand[handNum].cards, card => card.value), card.value]);
             // Create a new hand array with the updated cards for the specified hand
+            updatedHandValue.sort();
             const updatedHand = state.blackjackData.playerData.hand.map((hand, index) => {
                 if (index === handNum) {
                     return {
                         ...hand,
                         cards: [...hand.cards, card],  // Add the new card to the cards array
-                        handValue: updatedHandValue
+                        handValue: updatedHandValue,
+                        bust: updatedHandValue.every(value => value > 21)
                     };
                 }
                 return hand;
@@ -161,10 +167,12 @@ export const blackjack = (state = initialState, actions) => {
         case DEALER_DRAW_CARD: {
             const { card } = payload;
             const updatedHandValue = calculatePossibleValues([...Array.from(state.blackjackData.dealerData.hand.cards, card => card.value), card.value]);
+            updatedHandValue.sort();
             const updatedHand = {
                 ...state.blackjackData.dealerData.hand,
                 cards: [...state.blackjackData.dealerData.hand.cards, card],
-                handValue: updatedHandValue
+                handValue: updatedHandValue,
+                bust: updatedHandValue.every(value => value > 21)
             }
             return{
                 ...state,
@@ -177,6 +185,18 @@ export const blackjack = (state = initialState, actions) => {
                 }
             }
         }
+        // Reset the dealer and player to empty hands and values
+        case RESET_GAME:{
+            return{
+                ...state,
+                blackjackData: {
+                    ...state.blackjackData,
+                    playerData: initialBlackjackPlayerData,
+                    dealerData: initialBlackjackDealerData
+                }
+            }
+        }
+        // reducers for retrieving the deck id
         case LOAD_DECK_SUCCESS:{
             const { deckId } = payload;
             return{
@@ -197,6 +217,10 @@ export const blackjack = (state = initialState, actions) => {
                 isLoading: true
             }
         }
+        // Reducers to log that a card was being loaded in
+        case LOAD_CARD_SUCCESS:
+        case LOAD_CARD_FAILURE:
+        case LOAD_CARD_IN_PROGRESS:
         default:
             return state;
     }
