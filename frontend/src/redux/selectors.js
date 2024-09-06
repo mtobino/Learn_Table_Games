@@ -1,5 +1,4 @@
 import { createSelector } from '@reduxjs/toolkit';
-export const getDeckId = state => state.blackjack.deckId;
 export const isLoading = state => state.blackjack.isLoading;
 export const getPlayerData = state => state.blackjack.blackjackData.playerData;
 export const getDealerData = state => state.blackjack.dealerData;

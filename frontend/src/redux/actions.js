@@ -29,19 +29,6 @@ export const playerStands = (handNum) => ({
     type: PLAYER_STANDS,
     payload: { handNum }
 });
-export const LOAD_DECK_IN_PROGRESS = 'LOAD_DECK_IN_PROGRESS';
-export const loadDeckInProgress = () => ({
-    type: LOAD_DECK_IN_PROGRESS
-});
-export const LOAD_DECK_SUCCESS = 'LOAD_DECK_SUCCESS';
-export const loadDeckSuccess = deckId =>({
-    type: LOAD_DECK_SUCCESS,
-    payload: { deckId }
-});
-export const LOAD_DECK_FAILURE = 'LOAD_DECK_FAILURE';
-export  const loadDeckFailure = () => ({
-    type: LOAD_DECK_FAILURE
-});
 export const LOAD_CARD_IN_PROGRESS = 'LOAD_CARD_IN_PROGRESS';
 export const loadCardInProgress = () =>({
     type: LOAD_CARD_IN_PROGRESS,
@@ -52,6 +39,6 @@ export const loadCardSuccess = () =>({
     type: LOAD_CARD_SUCCESS,
 });
 export const LOAD_CARD_FAILURE = 'LOAD_CARD_FAILURE';
-export const loadCardFailure = deckId =>({
+export const loadCardFailure = () =>({
     type: LOAD_CARD_FAILURE,
 });

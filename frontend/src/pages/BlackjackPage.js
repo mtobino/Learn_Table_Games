@@ -1,35 +1,42 @@
-import { useEffect } from "react";
-import { connect } from "react-redux";
-import { loadDeck, startTheGame, resetTheGame } from "../redux/thunks";
-import { getDeckId, isLoading} from "../redux/selectors";
+import {useEffect, useState} from "react";
+import {connect} from "react-redux";
+import {resetTheGame, startTheGame} from "../redux/thunks";
+import {isLoading} from "../redux/selectors";
 import PlayerCards from "../components/PlayerCards";
 
-const BlackjackPage = ({ startLoadingDeck, deckId, isLoading, beginGame, reset }) =>{
+const BlackjackPage = ({ beginGame, resetGame }) =>{
+
+    const [reset , setReset] = useState(true);
 
     useEffect( () => {
-        startLoadingDeck();
-        reset(deckId);
-        beginGame(deckId);
-    }, []);
-    const content = (
+        if(reset){
+            resetGame();
+        }
+        else{
+            beginGame();
+        }
+    }, [reset]);
+    //TODO: have a spinner appear between loading each card
+    return (
         <>
             <h1>Welcome to Blackjack!</h1>
-            <p>Your card deck can be found here: {deckId}</p>
-            <PlayerCards/>
+            <button onClick={() => setReset(false)}>
+                Start Game
+            </button>
+            <button onClick={() => setReset(true)}>
+                Reset Game
+            </button>
+            {!reset && <PlayerCards/>}
         </>
     );
-    const loadingMessage = <div>Loading...</div>
-    return isLoading ? loadingMessage : content;
 };
 
 const mapStateToProps = state =>({
-    deckId: getDeckId(state),
-    isLoading: isLoading(state),
+
 });
 const mapDispatchToProps = dispatch =>({
-    startLoadingDeck: () => dispatch(loadDeck()),
-    beginGame: (deckId) => dispatch(startTheGame(deckId)),
-    reset: (deckId) => dispatch(resetTheGame(deckId)),
+    beginGame: () => dispatch(startTheGame()),
+    resetGame: () => dispatch(resetTheGame()),
 });
 
 export default connect(mapStateToProps, mapDispatchToProps)(BlackjackPage);

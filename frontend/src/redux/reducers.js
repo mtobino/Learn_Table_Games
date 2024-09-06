@@ -5,9 +5,6 @@ import {
     PLAYER_SPLIT_CARDS,
     PLAYER_DOUBLE_DOWNS,
     DEALER_DRAW_CARD,
-    LOAD_DECK_FAILURE,
-    LOAD_DECK_IN_PROGRESS,
-    LOAD_DECK_SUCCESS,
     LOAD_CARD_FAILURE,
     LOAD_CARD_IN_PROGRESS,
     LOAD_CARD_SUCCESS
@@ -36,7 +33,6 @@ const initialBlackjackDealerData = {
 };
 const initialState = {
     isLoading: false,
-    deckId: '',
     blackjackData: {
         playerData: initialBlackjackPlayerData,
         dealerData: initialBlackjackDealerData
@@ -58,7 +54,8 @@ export const blackjack = (state = initialState, actions) => {
                         ...hand,
                         cards: [...hand.cards, card],  // Add the new card to the cards array
                         handValue: updatedHandValue,
-                        bust: updatedHandValue.every(value => value > 21)
+                        bust: updatedHandValue.every(value => value > 21),
+                        stand:updatedHandValue.includes(21)
                     };
                 }
                 return hand;
@@ -172,7 +169,8 @@ export const blackjack = (state = initialState, actions) => {
                 ...state.blackjackData.dealerData.hand,
                 cards: [...state.blackjackData.dealerData.hand.cards, card],
                 handValue: updatedHandValue,
-                bust: updatedHandValue.every(value => value > 21)
+                bust: updatedHandValue.every(value => value > 21),
+                stand:updatedHandValue.includes(21)
             }
             return{
                 ...state,
@@ -196,31 +194,19 @@ export const blackjack = (state = initialState, actions) => {
                 }
             }
         }
-        // reducers for retrieving the deck id
-        case LOAD_DECK_SUCCESS:{
-            const { deckId } = payload;
-            return{
-                ...state,
-                isLoading: false,
-                deckId: deckId
-            }
-        }
-        case LOAD_DECK_FAILURE:{
+        // Reducers to log that a card was being loaded in
+        case LOAD_CARD_SUCCESS:
+        case LOAD_CARD_FAILURE:
             return{
                 ...state,
                 isLoading: false
             }
-        }
-        case LOAD_DECK_IN_PROGRESS:{
+        case LOAD_CARD_IN_PROGRESS:{
             return{
                 ...state,
                 isLoading: true
             }
         }
-        // Reducers to log that a card was being loaded in
-        case LOAD_CARD_SUCCESS:
-        case LOAD_CARD_FAILURE:
-        case LOAD_CARD_IN_PROGRESS:
         default:
             return state;
     }

@@ -1,7 +1,4 @@
 import {
-    loadDeckSuccess,
-    loadDeckInProgress,
-    loadDeckFailure,
     playerDrawCard,
     playerStands,
     playerSplitCards,
@@ -14,22 +11,11 @@ import {
 } from './actions';
 import axios from "axios";
 
-export const loadDeck = () => async (dispatch, getState)=>{
-    try{
-        dispatch(loadDeckInProgress());
-        const response = await axios.get('api/blackjack/get-deck');
-        const { deck_id } = response.data;
-        dispatch(loadDeckSuccess(deck_id));
-    }catch(error){
-        dispatch(loadDeckFailure());
-        console.log(error);
-    }
-};
 
-export const startTheGame = (deckId) => async (dispatch, getState) =>{
+export const startTheGame = () => async (dispatch, getState) =>{
     try{
         dispatch(loadCardInProgress());
-        const response = await axios.get(`api/blackjack/draw/${deckId}?count=4`);
+        const response = await axios.get(`api/blackjack/draw?count=4`);
         dispatch(loadCardSuccess());
         const { cards } = response.data;
         let oscillator = true;
@@ -46,19 +32,19 @@ export const startTheGame = (deckId) => async (dispatch, getState) =>{
     }
 }
 
-export const resetTheGame = (deckId) => async (dispatch, getState)=>{
+export const resetTheGame = () => async (dispatch, getState)=>{
     try{
-        await axios.put(`api/blackjack/shuffle/${deckId}`);
+        await axios.put(`api/blackjack/shuffle`);
         dispatch(resetGame());
     } catch (e) {
         console.error(e);
     }
 }
 
-export const playerDrawsACard = (deckId, handNum) => async (dispatch, getState)=>{
+export const playerDrawsACard = (handNum) => async (dispatch, getState)=>{
     try{
         dispatch(loadCardInProgress());
-        const response = await axios.get(`api/blackjack/draw/${deckId}?count=1`);
+        const response = await axios.get(`api/blackjack/draw?count=1`);
         const { cards } = response.data;
         const [ card ] = cards;
         dispatch(playerDrawCard(card, handNum));
@@ -72,10 +58,10 @@ export const playerStand = (handNum) => (dispatch, getState)=>{
     dispatch(playerStands(handNum));
 }
 
-export const dealerDrawsACard = (deckId) => async (dispatch, getState)=>{
+export const dealerDrawsACard = () => async (dispatch, getState)=>{
     try{
         dispatch(loadCardInProgress());
-        const response = await axios.get(`api/blackjack/draw/${deckId}?count=1`);
+        const response = await axios.get(`api/blackjack/draw?count=1`);
         const { cards } = response.data;
         const [ card ] = cards;
         dispatch(dealerDrawCard(card));
