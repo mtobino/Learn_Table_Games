@@ -79,7 +79,7 @@ function shouldStand(playerHandValues, dealerCardValue) {
             return false;
         }
         else if(softMax === 18){
-            return inRange(dealerCardValue, 9, 10) || dealerCardValue === "ACE";
+            return !inRange(dealerCardValue, 9, 10) || !(dealerCardValue === "ACE");
         }
         else{
             return true;

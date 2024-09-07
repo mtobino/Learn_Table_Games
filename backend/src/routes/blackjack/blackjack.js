@@ -32,10 +32,10 @@ router.get('/suggested-next-move', (req, res) =>{
     const cardValues = playerCards.split(',');
 
     const playerRecommendedAction = getSuggestedAction(cardValues, dealerFaceUpCard);
-    res.send(JSON.stringify({
+    res.send({
         recommendedAction : playerRecommendedAction,
         recommendedActionMessage: getSuggestedActionMessage(playerRecommendedAction)
-    }));
+    });
 
 });
 

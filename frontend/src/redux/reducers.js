@@ -7,18 +7,23 @@ import {
     DEALER_DRAW_CARD,
     LOAD_CARD_FAILURE,
     LOAD_CARD_IN_PROGRESS,
-    LOAD_CARD_SUCCESS
+    LOAD_CARD_SUCCESS, LOAD_PLAYER_SUGGESTED_ACTION_IN_PROGRESS, LOAD_PLAYER_SUGGESTED_ACTION_SUCCESS
 } from './actions';
 import { calculatePossibleValues } from '../ultility/blackjack-utility';
 
 const initialBlackjackPlayerData = {
     blackjack: false,
+    split:false,
     hand:[
         {
             stand: false,
             bust: false,
             cards: [],
-            handValue:[]
+            handValue:[],
+            hint:{
+                recommendedAction: '',
+                recommendedActionMessage:''
+            }
         }
     ]
 };
@@ -55,7 +60,6 @@ export const blackjack = (state = initialState, actions) => {
                         cards: [...hand.cards, card],  // Add the new card to the cards array
                         handValue: updatedHandValue,
                         bust: updatedHandValue.every(value => value > 21),
-                        stand:updatedHandValue.includes(21)
                     };
                 }
                 return hand;
@@ -67,6 +71,7 @@ export const blackjack = (state = initialState, actions) => {
                     ...state.blackjackData,
                     playerData: {
                         ...state.blackjackData.playerData,
+                        blackjack: updatedHandValue.includes(21),
                         hand: updatedHand
                     }
                 }
@@ -127,6 +132,7 @@ export const blackjack = (state = initialState, actions) => {
                     ...state.blackjackData,
                     playerData: {
                         ...state.blackjackData.playerData,
+                        split:true,
                         hand: updatedHand
                     }
                 }
@@ -205,6 +211,40 @@ export const blackjack = (state = initialState, actions) => {
             return{
                 ...state,
                 isLoading: true
+            }
+        }
+        case LOAD_PLAYER_SUGGESTED_ACTION_IN_PROGRESS:{
+            return {
+                ...state,
+                isLoading: true
+            }
+        }
+        case LOAD_PLAYER_SUGGESTED_ACTION_SUCCESS:{
+            const {handNum, suggestedAction} = payload;
+            const updatedHand = state.blackjackData.playerData.hand.map((hand, index) =>{
+                if(index === handNum){
+                    let { recommendedAction, recommendedActionMessage } = suggestedAction;
+                    return{
+                        ...hand,
+                        hint:{
+                            ...hand.hint,
+                            recommendedActionMessage: recommendedActionMessage,
+                            recommendedAction: recommendedAction
+                        }
+
+                    }
+                }
+                return hand;
+            });
+            return{
+                ...state,
+                blackjackData: {
+                    ...state.blackjackData,
+                    playerData: {
+                        ...state.blackjackData.playerData,
+                        hand: updatedHand
+                    }
+                }
             }
         }
         default:

@@ -42,3 +42,16 @@ export const LOAD_CARD_FAILURE = 'LOAD_CARD_FAILURE';
 export const loadCardFailure = () =>({
     type: LOAD_CARD_FAILURE,
 });
+export const LOAD_PLAYER_SUGGESTED_ACTION_IN_PROGRESS = 'LOAD_PLAYER_SUGGESTED_ACTION_IN_PROGRESS';
+export const loadPlayerSuggestedActionInProgress = () =>({
+    type:LOAD_PLAYER_SUGGESTED_ACTION_IN_PROGRESS
+});
+export const LOAD_PLAYER_SUGGESTED_ACTION_SUCCESS = 'LOAD_PLAYER_SUGGESTED_ACTION_SUCCESS';
+export const loadPlayerSuggestedActionSuccess = (handNum, suggestedAction) => ({
+    type: LOAD_PLAYER_SUGGESTED_ACTION_SUCCESS,
+    payload: { handNum, suggestedAction }
+});
+export const LOAD_PLAYER_SUGGESTED_ACTION_FAILED = 'LOAD_PLAYER_SUGGESTED_ACTION_FAILED';
+export const loadPlayerSuggestedActionFailed = () => ({
+    type: LOAD_PLAYER_SUGGESTED_ACTION_FAILED
+});

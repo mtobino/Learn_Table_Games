@@ -7,7 +7,7 @@ import {
     loadCardSuccess,
     loadCardInProgress,
     loadCardFailure,
-    resetGame
+    resetGame, loadPlayerSuggestedActionInProgress, loadPlayerSuggestedActionSuccess, loadPlayerSuggestedActionFailed
 } from './actions';
 import axios from "axios";
 
@@ -41,6 +41,18 @@ export const resetTheGame = () => async (dispatch, getState)=>{
     }
 }
 
+export const getPlayerSuggestedAction = (handNum, playerCardsString, dealerFaceUpCard) => async (dispatch, getState) =>{
+    try{
+        dispatch(loadPlayerSuggestedActionInProgress());
+        const response = await axios.get(`api/blackjack/suggested-next-move?playerCards=${playerCardsString}&dealerFaceUpCard=${dealerFaceUpCard.value}`);
+        const suggestedAction = response.data
+        dispatch(loadPlayerSuggestedActionSuccess(handNum, suggestedAction));
+    } catch (e){
+        dispatch(loadPlayerSuggestedActionFailed());
+        console.error(e);
+    }
+}
+
 export const playerDrawsACard = (handNum) => async (dispatch, getState)=>{
     try{
         dispatch(loadCardInProgress());
@@ -51,7 +63,7 @@ export const playerDrawsACard = (handNum) => async (dispatch, getState)=>{
         dispatch(loadCardSuccess());
     } catch (e) {
         dispatch(loadCardFailure());
-        console.log(e);
+        console.error(e);
     }
 };
 export const playerStand = (handNum) => (dispatch, getState)=>{
@@ -68,6 +80,6 @@ export const dealerDrawsACard = () => async (dispatch, getState)=>{
         dispatch(loadCardSuccess());
     } catch (e) {
         dispatch(loadCardFailure());
-        console.log(e);
+        console.error(e);
     }
 };

@@ -1,6 +1,5 @@
 import {connect} from "react-redux";
 import {getPlayerHand} from "../redux/selectors";
-import {playerDrawsACard, playerStand} from "../redux/thunks";
 import styled from 'styled-components';
 import PlayerCardsHolder from "./PlayerCardsHolder";
 
@@ -14,7 +13,7 @@ const PlayerWrapper = styled.div`
     padding: 20px; /* Optional padding */
 `
 //TODO: Might have to eventually make a wrapper to the wrapper container for when the player splits their cards
-const PlayerCards = ({ playerHand, hit, stand }) => {
+const PlayerCards = ({ playerHand }) => {
     return (
         <PlayerWrapper>
             {playerHand.map((hand, i) => (
@@ -22,8 +21,6 @@ const PlayerCards = ({ playerHand, hit, stand }) => {
                     key={i}
                     hand={hand}
                     index={i}
-                    hit={hit}
-                    stand={stand}
                 />
             ))}
         </PlayerWrapper>
@@ -32,9 +29,5 @@ const PlayerCards = ({ playerHand, hit, stand }) => {
 const mapStateToProps = (state) => ({
     playerHand: getPlayerHand(state),
 });
-const mapDispatchToProps = dispatch =>({
-    hit: (handNum) => dispatch(playerDrawsACard(handNum)),
-    stand: (handNum) => dispatch(playerStand(handNum)),
-});
 
-export default connect(mapStateToProps,mapDispatchToProps)(PlayerCards);
+export default connect(mapStateToProps)(PlayerCards);
