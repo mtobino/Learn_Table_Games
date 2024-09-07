@@ -28,10 +28,10 @@ router.get('/get-deck', async (req, res) => {
  */
 router.get('/suggested-next-move', (req, res) =>{
     // Request looks like: http://localhost:8000/api/blackjack/suggested-next-move?playerCards=5,5&dealerFaceUpCard=4
-    const { playerCards, dealerFaceUpCard } = req.query;
+    const { playerCards, dealerFaceUpCard, hasSplit } = req.query;
     const cardValues = playerCards.split(',');
-
-    const playerRecommendedAction = getSuggestedAction(cardValues, dealerFaceUpCard);
+    const split = hasSplit === 'true';
+    const playerRecommendedAction = getSuggestedAction(cardValues, dealerFaceUpCard, split);
     res.send({
         recommendedAction : playerRecommendedAction,
         recommendedActionMessage: getSuggestedActionMessage(playerRecommendedAction)

@@ -2,6 +2,7 @@ import {connect} from "react-redux";
 import {getPlayerHand} from "../redux/selectors";
 import styled from 'styled-components';
 import PlayerCardsHolder from "./PlayerCardsHolder";
+import {useState} from "react";
 
 
 const PlayerWrapper = styled.div`
@@ -14,6 +15,7 @@ const PlayerWrapper = styled.div`
 `
 //TODO: Might have to eventually make a wrapper to the wrapper container for when the player splits their cards
 const PlayerCards = ({ playerHand }) => {
+    const [activeHand, setActiveHand] = useState(0);
     return (
         <PlayerWrapper>
             {playerHand.map((hand, i) => (
@@ -21,6 +23,8 @@ const PlayerCards = ({ playerHand }) => {
                     key={i}
                     hand={hand}
                     index={i}
+                    activeHand={activeHand}
+                    setActiveHand={setActiveHand}
                 />
             ))}
         </PlayerWrapper>

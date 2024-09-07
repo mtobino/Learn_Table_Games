@@ -21,20 +21,30 @@ const PLAYER_HITS = 'PLAYER_HITS';
  *
  * @param playerCards           The player's cards
  * @param dealerFaceUpCard      The dealer's face up card
+ * @param hasSplit              If the player has already split their cards
  * @returns {string}            The action the player should take
  */
-function getSuggestedAction (playerCards, dealerFaceUpCard){
+function getSuggestedAction (playerCards, dealerFaceUpCard, hasSplit){
     let playerHandValue = calculatePossibleValues(playerCards);
 
-    if(shouldStand(playerHandValue, dealerFaceUpCard))
-    {
-        return PLAYER_STANDS;
+    if(hasSplit){
+        if(shouldStand(playerHandValue, dealerFaceUpCard))
+        {
+            return PLAYER_STANDS;
+        }
+        return PLAYER_HITS;
     }
+    else{
+        if(shouldStand(playerHandValue, dealerFaceUpCard))
+        {
+            return PLAYER_STANDS;
+        }
 
-    else if( shouldDoubleDown(playerHandValue[0], dealerFaceUpCard)){
-        return PLAYER_DOUBLE_DOWNS;
+        else if( shouldDoubleDown(playerHandValue[0], dealerFaceUpCard)){
+            return PLAYER_DOUBLE_DOWNS;
+        }
+        else return HitSplitOrStand(playerCards, dealerFaceUpCard);
     }
-    else return HitSplitOrStand(playerCards, dealerFaceUpCard);
 
 }
 
@@ -47,10 +57,10 @@ function getSuggestedAction (playerCards, dealerFaceUpCard){
 function getSuggestedActionMessage(suggestedAction){
     switch(suggestedAction){
         case PLAYER_STANDS:
-            return "It is recommended you stand now. Hitting now could either cause you to bust and lose, or take away" +
+            return "It is recommended you stand now. Hitting now could either cause you to bust and lose, or take away " +
                 "the card that would have busted the dealer. Stand and trust the odds should be in your favor.";
         case PLAYER_HITS:
-            return "It is recommended you draw another card. The dealer will most likely win if you just stand now." +
+            return "It is recommended you draw another card. The dealer will most likely win if you just stand now. " +
                 "Draw a card now and hope that it is enough for you to win or at least not bust.";
         case PLAYER_DOUBLE_DOWNS:
             return "It is recommended you should double down here. The chances of you hitting a card that could " +

@@ -41,10 +41,10 @@ export const resetTheGame = () => async (dispatch, getState)=>{
     }
 }
 
-export const getPlayerSuggestedAction = (handNum, playerCardsString, dealerFaceUpCard) => async (dispatch, getState) =>{
+export const getPlayerSuggestedAction = (handNum, playerCardsString, dealerFaceUpCard, hasSplit) => async (dispatch, getState) =>{
     try{
         dispatch(loadPlayerSuggestedActionInProgress());
-        const response = await axios.get(`api/blackjack/suggested-next-move?playerCards=${playerCardsString}&dealerFaceUpCard=${dealerFaceUpCard.value}`);
+        const response = await axios.get(`api/blackjack/suggested-next-move?playerCards=${playerCardsString}&dealerFaceUpCard=${dealerFaceUpCard.value}&hasSplit=${hasSplit}`);
         const suggestedAction = response.data
         dispatch(loadPlayerSuggestedActionSuccess(handNum, suggestedAction));
     } catch (e){
@@ -97,3 +97,10 @@ export const doublesDown = () => async(dispatch, getState) =>{
         console.error(e);
     }
 }
+export const split = () => async(dispatch, getState) =>{
+    try{
+        dispatch(playerSplitCards());
+    } catch(e){
+        console.error(e);
+    }
+};

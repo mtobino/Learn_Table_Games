@@ -7,13 +7,15 @@ import {
     DEALER_DRAW_CARD,
     LOAD_CARD_FAILURE,
     LOAD_CARD_IN_PROGRESS,
-    LOAD_CARD_SUCCESS, LOAD_PLAYER_SUGGESTED_ACTION_IN_PROGRESS, LOAD_PLAYER_SUGGESTED_ACTION_SUCCESS
+    LOAD_CARD_SUCCESS,
+    LOAD_PLAYER_SUGGESTED_ACTION_IN_PROGRESS,
+    LOAD_PLAYER_SUGGESTED_ACTION_SUCCESS
 } from './actions';
 import { calculatePossibleValues } from '../ultility/blackjack-utility';
 
 const initialBlackjackPlayerData = {
     blackjack: false,
-    split:false,
+    hasSplit:false,
     hand:[
         {
             stand: false,
@@ -110,14 +112,22 @@ export const blackjack = (state = initialState, actions) => {
                 stand: false,
                 bust: false,
                 cards: [firstCard],
-                handValue: calculatePossibleValues([firstCard.value]) // Assuming cards have a `value` property
+                handValue: calculatePossibleValues([firstCard.value]),
+                hint:{
+                    recommendedAction: '',
+                    recommendedActionMessage:''
+                }
             };
 
             const newHand2 = {
                 stand: false,
                 bust: false,
                 cards: [secondCard],
-                handValue: calculatePossibleValues([secondCard.value]) // Assuming cards have a `value` property
+                handValue: calculatePossibleValues([secondCard.value]),
+                hint:{
+                    recommendedAction: '',
+                    recommendedActionMessage:''
+                }
             };
 
             // Update the hand array to include the two new hands
@@ -132,7 +142,7 @@ export const blackjack = (state = initialState, actions) => {
                     ...state.blackjackData,
                     playerData: {
                         ...state.blackjackData.playerData,
-                        split:true,
+                        hasSplit:true,
                         hand: updatedHand
                     }
                 }
