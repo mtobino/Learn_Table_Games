@@ -25,7 +25,7 @@ export const getPlayerRecommendedActionMessage = createSelector(
         getPlayerHand,
         (_, handNum) => handNum
     ],
-    (hand, handNum) => hand[handNum].recommendedActionMessage
+    (hand, handNum) => hand[handNum].hint.recommendedActionMessage
 );
 
 export const getDealerData = state => state.blackjack.blackjackData.dealerData;

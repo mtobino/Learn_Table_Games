@@ -83,3 +83,17 @@ export const dealerDrawsACard = () => async (dispatch, getState)=>{
         console.error(e);
     }
 };
+
+export const doublesDown = () => async(dispatch, getState) =>{
+    try{
+        dispatch(loadCardInProgress());
+        const response = await axios.get(`api/blackjack/draw?count=1`);
+        const { cards } = response.data;
+        const [ card ] = cards;
+        dispatch(playerDoubleDowns(card));
+        dispatch(loadCardSuccess());
+    } catch (e) {
+        dispatch(loadCardFailure());
+        console.error(e);
+    }
+}
