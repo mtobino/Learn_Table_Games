@@ -2,18 +2,18 @@ import {ButtonContainer, Card, CardContainer, WrapperContainer} from "./wrappers
 import {
     canSplitHand,
     getDealerFaceUpCard,
-    getPlayerCardValuesAsString,
-    getPlayerRecommendedActionMessage, hasPlayerSpecificHandTurnEnded,
+    getPlayerCardValuesAsString, getPlayerHandValue,
+    hasPlayerSpecificHandTurnEnded,
     hasPlayerSplit
 } from "../redux/selectors";
 import {doublesDown, getPlayerSuggestedAction, playerDrawsACard, playerStand, split} from "../redux/thunks";
 import {connect} from "react-redux";
-import {useEffect, useState} from "react";
+import {useEffect} from "react";
 
-const PlayerCardsHolder = ({ hand, index, activeHand, setActiveHand, hit, stand, dealerFaceUpCard, hint, hintMessage, playerCardsAsString, doubleDown, hasSplit, splitCards, turnEnd, canSplit}) =>{
-    const [showHint, setShowHint] = useState(false);
+const PlayerCardsHolder = ({ hand, index, activeHand, setActiveHand, setShowHint, hit, stand, dealerFaceUpCard, hint, playerCardsAsString, doubleDown, hasSplit, splitCards, turnEnd, canSplit, playerHandValue}) =>{
     useEffect(() => {
         if(hasSplit && index === activeHand){
+            setShowHint(false)
             hit(index)
         }
     }, [activeHand, index, hasSplit]);
@@ -22,6 +22,22 @@ const PlayerCardsHolder = ({ hand, index, activeHand, setActiveHand, hit, stand,
             setActiveHand(activeHand + 1);
         }
     }, [turnEnd]);
+    const buttons = <ButtonContainer>
+        <button onClick={() => hit(index)}>Hit</button>
+        <button onClick={() => stand(index)}>Stand</button>
+        <button onClick={() => doubleDown()}>Double Down</button>
+        {!hasSplit && canSplit &&
+            <button onClick={() => splitCards()}>
+                Split
+            </button>
+        }
+        <button onClick={() => {
+            hint(index, playerCardsAsString, dealerFaceUpCard, hasSplit);
+            setShowHint(true);
+        }}>
+            Hint
+        </button>
+    </ButtonContainer>
     return (
         <WrapperContainer>
             <CardContainer>
@@ -35,42 +51,19 @@ const PlayerCardsHolder = ({ hand, index, activeHand, setActiveHand, hit, stand,
                 ))}
             </CardContainer>
             <>
-                <p>{hand.handValue.filter(value => value <= 21).length > 1 ? hand.handValue[0] + "/" + hand.handValue[1] : hand.handValue[0] + ""}</p>
+                <p>{playerHandValue}</p>
             </>
-            {activeHand === index && !hand.bust && !hand.stand && (
-                <ButtonContainer>
-                    <button onClick={() => hit(index)}>Hit</button>
-                    <button onClick={() => stand(index)}>Stand</button>
-                    <button onClick={() => doubleDown()}>Double Down</button>
-                    {!hasSplit && canSplit &&
-                        <button onClick={() => splitCards()}>
-                            Split
-                        </button>
-                    }
-                    <button onClick={() => {
-                        hint(index, playerCardsAsString, dealerFaceUpCard, hasSplit);
-                        setShowHint(true);
-                    }}>
-                        Hint
-                    </button>
-                </ButtonContainer>)
-            }
-            {showHint &&
-                <>
-                    <p>{hintMessage}</p>
-                    <button onClick={() => setShowHint(false)}>Hide hint</button>
-                </>
-            }
+            { activeHand === index && !hand.bust && !hand.stand && buttons }
         </WrapperContainer>
     )
 }
 const mapStateToProps = (state, ownProps) => ({
     dealerFaceUpCard : getDealerFaceUpCard(state),
     playerCardsAsString : getPlayerCardValuesAsString(state, ownProps.index),
-    hintMessage: getPlayerRecommendedActionMessage(state, ownProps.index),
     hasSplit: hasPlayerSplit(state),
     turnEnd: hasPlayerSpecificHandTurnEnded(state, ownProps.index),
-    canSplit: canSplitHand(state, ownProps.index)
+    canSplit: canSplitHand(state, ownProps.index),
+    playerHandValue : getPlayerHandValue(state, ownProps.index)
 });
 const mapDispatchToProps = dispatch =>({
     hit: (handNum) => dispatch(playerDrawsACard(handNum)),

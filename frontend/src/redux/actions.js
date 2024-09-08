@@ -55,3 +55,7 @@ export const LOAD_PLAYER_SUGGESTED_ACTION_FAILED = 'LOAD_PLAYER_SUGGESTED_ACTION
 export const loadPlayerSuggestedActionFailed = () => ({
     type: LOAD_PLAYER_SUGGESTED_ACTION_FAILED
 });
+export const CHECK_FOR_BLACKJACKS = 'CHECK_FOR_BLACKJACKS';
+export const checkForBlackjacks = () => ({
+    type:CHECK_FOR_BLACKJACKS,
+})

@@ -3,6 +3,7 @@ import {connect} from "react-redux";
 import {resetTheGame, startTheGame} from "../redux/thunks";
 import {isLoading} from "../redux/selectors";
 import PlayerCards from "../components/PlayerCards";
+import DealerCards from "../components/DealerCards";
 
 const BlackjackPage = ({ beginGame, resetGame }) =>{
 
@@ -17,6 +18,10 @@ const BlackjackPage = ({ beginGame, resetGame }) =>{
         }
     }, [reset]);
     //TODO: have a spinner appear between loading each card
+    const game = <>
+        <DealerCards/>
+        <PlayerCards/>
+    </>
     return (
         <>
             <h1>Welcome to Blackjack!</h1>
@@ -26,7 +31,7 @@ const BlackjackPage = ({ beginGame, resetGame }) =>{
             <button onClick={() => setReset(true)}>
                 Reset Game
             </button>
-            {!reset && <PlayerCards/>}
+            {!reset && game}
         </>
     );
 };

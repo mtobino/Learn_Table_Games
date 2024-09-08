@@ -9,7 +9,7 @@ import {
     LOAD_CARD_IN_PROGRESS,
     LOAD_CARD_SUCCESS,
     LOAD_PLAYER_SUGGESTED_ACTION_IN_PROGRESS,
-    LOAD_PLAYER_SUGGESTED_ACTION_SUCCESS
+    LOAD_PLAYER_SUGGESTED_ACTION_SUCCESS, LOAD_PLAYER_SUGGESTED_ACTION_FAILED, CHECK_FOR_BLACKJACKS
 } from './actions';
 import { calculatePossibleValues } from '../ultility/blackjack-utility';
 
@@ -50,11 +50,12 @@ export const blackjack = (state = initialState, actions) => {
     const { type, payload } = actions;
 
     switch (type) {
+        // Player action reduces
         case PLAYER_DRAW_CARD: {
             const { card, handNum } = payload;
             const updatedHandValue = calculatePossibleValues([...Array.from(state.blackjackData.playerData.hand[handNum].cards, card => card.value), card.value]);
             // Create a new hand array with the updated cards for the specified hand
-            updatedHandValue.sort();
+            updatedHandValue.sort((a, b) => a - b);
             const updatedHand = state.blackjackData.playerData.hand.map((hand, index) => {
                 if (index === handNum) {
                     return {
@@ -62,6 +63,7 @@ export const blackjack = (state = initialState, actions) => {
                         cards: [...hand.cards, card],  // Add the new card to the cards array
                         handValue: updatedHandValue,
                         bust: updatedHandValue.every(value => value > 21),
+                        stand: updatedHandValue.includes(21)
                     };
                 }
                 return hand;
@@ -73,7 +75,6 @@ export const blackjack = (state = initialState, actions) => {
                     ...state.blackjackData,
                     playerData: {
                         ...state.blackjackData.playerData,
-                        blackjack: updatedHandValue.includes(21),
                         hand: updatedHand
                     }
                 }
@@ -177,16 +178,36 @@ export const blackjack = (state = initialState, actions) => {
             };
 
         }
+        // check if anyone got a blackjack from the start and end turns
+        case CHECK_FOR_BLACKJACKS:{
+            const dealerBlackjack = state.blackjackData.dealerData.hand.handValue.includes(21);
+            const playerBlackjack = state.blackjackData.playerData.hand[0].handValue.includes(21);
+            return{
+                ...state,
+                blackjackData: {
+                    ...state.blackjackData,
+                    playerData: {
+                        ...state.blackjackData.playerData,
+                        blackjack: playerBlackjack
+                    },
+                    dealerData: {
+                        ...state.blackjackData.dealerData,
+                        blackjack: dealerBlackjack
+                    }
+                }
+            }
+        }
+        // dealers sole action
         case DEALER_DRAW_CARD: {
             const { card } = payload;
             const updatedHandValue = calculatePossibleValues([...Array.from(state.blackjackData.dealerData.hand.cards, card => card.value), card.value]);
-            updatedHandValue.sort();
+            updatedHandValue.sort((a, b) => a - b);
             const updatedHand = {
                 ...state.blackjackData.dealerData.hand,
                 cards: [...state.blackjackData.dealerData.hand.cards, card],
                 handValue: updatedHandValue,
                 bust: updatedHandValue.every(value => value > 21),
-                stand:updatedHandValue.includes(21)
+                stand: updatedHandValue.filter(value => value >= 17 && value <= 21).length > 0
             }
             return{
                 ...state,
@@ -223,6 +244,7 @@ export const blackjack = (state = initialState, actions) => {
                 isLoading: true
             }
         }
+        //Reducers that log that a hint was asked for
         case LOAD_PLAYER_SUGGESTED_ACTION_IN_PROGRESS:{
             return {
                 ...state,
@@ -255,6 +277,12 @@ export const blackjack = (state = initialState, actions) => {
                         hand: updatedHand
                     }
                 }
+            }
+        }
+        case LOAD_PLAYER_SUGGESTED_ACTION_FAILED:{
+            return {
+                ...state,
+                isLoading: false
             }
         }
         default:
