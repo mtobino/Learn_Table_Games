@@ -100,19 +100,32 @@ export const hasPlayerSpecificHandTurnEnded = createSelector(
 export const getPlayerHandValue = createSelector(
     [getPlayerHand, (_, index) => index],
     (hand, index) => {
-        if (hand[index].handValue.filter(value => value <= 21).length > 1) {
-            return hand[index].handValue[0] + "/" + hand[index].handValue[1];
-        } else return hand[index].handValue[0] + "";
+        // Sort the list to avoid issues with hand values appearing as [25, 15] instead of [15, 25]
+        const sortedPlayerHandValues = hand[index].handValue.toSorted((a, b) => a - b);
+        // if we have a 21, only display that
+        if(sortedPlayerHandValues.includes(21)){
+            return "21";
+        }
+        // if there is more than one value under or equal to 21, displace the two lowest values
+        else if (sortedPlayerHandValues.filter(value => value <= 21).length > 1) {
+            return sortedPlayerHandValues[0] + "/" + sortedPlayerHandValues[1];
+        }
+        // otherwise there is only one applicable value and it should be the first one
+        else return sortedPlayerHandValues[0] + "";
     }
 );
 
 export const getDealerHandValue = createSelector(
     [getDealerHand],
     (hand) => {
-        if(hand.handValue.filter(value => value <= 21).length > 1){
-            return hand.handValue[0] + "/" + hand.handValue[1];
+        const sortedDealerHandValues = hand.handValue.toSorted((a, b) => a - b);
+        if(sortedDealerHandValues.includes(21)){
+            return "21";
         }
-        else return hand.handValue[0] + "";
+        else if(sortedDealerHandValues.filter(value => value <= 21).length > 1){
+            return sortedDealerHandValues[0] + "/" + sortedDealerHandValues[1];
+        }
+        else return sortedDealerHandValues[0] + "";
     }
 );
 

@@ -25,7 +25,9 @@ const PlayerCardsHolder = ({ hand, index, activeHand, setActiveHand, setShowHint
     const buttons = <ButtonContainer>
         <button onClick={() => hit(index)}>Hit</button>
         <button onClick={() => stand(index)}>Stand</button>
-        <button onClick={() => doubleDown()}>Double Down</button>
+        {hand.cards.length <= 2 &&
+            <button onClick={() => doubleDown()}>Double Down</button>
+        }
         {!hasSplit && canSplit &&
             <button onClick={() => splitCards()}>
                 Split

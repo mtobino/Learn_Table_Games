@@ -15,8 +15,8 @@ import { Link } from 'react-router-dom';
 import HomeIcon from '@mui/icons-material/Home';
 import MenuIcon from '@mui/icons-material/Menu';
 import {useState} from "react";
+import { GiPokerHand } from "react-icons/gi";
 
-const pages = ['Products', 'Pricing', 'Blog'];
 const links = [{name: 'About', href: '/about'}, {name: 'Blackjack', href: '/blackjack'}, ];
 const settings = ['Profile', 'Account', 'Dashboard', 'Logout'];
 
@@ -42,7 +42,7 @@ const Navbar = () => {
         <AppBar position="static">
             <Container maxWidth="xl">
                 <Toolbar disableGutters>
-                    <HomeIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+
                     <Typography
                         variant="h6"
                         noWrap
@@ -57,7 +57,7 @@ const Navbar = () => {
                             textDecoration: 'none',
                         }}
                     >
-                        <HomeIcon sx={{ display: { xs: 'none', md: 'flex' }, mr: 1 }} />
+                        <GiPokerHand />
                         Home
                     </Typography>
 
@@ -91,7 +91,8 @@ const Navbar = () => {
                             {links.map((link) => (
                                 <MenuItem
                                     key={link.name}
-                                    component={<Link to={link.href}/>}
+                                    component={Link}
+                                    to={link.href}
                                 >
                                     <Typography sx={{ textAlign: 'center' }}>{link.name}</Typography>
                                 </MenuItem>
@@ -102,7 +103,7 @@ const Navbar = () => {
                         variant="h5"
                         noWrap
                         component="a"
-                        href="/home"
+                        href="/"
                         sx={{
                             mr: 2,
                             display: { xs: 'flex', md: 'none' },
@@ -113,8 +114,7 @@ const Navbar = () => {
                             textDecoration: 'none',
                         }}
                     >
-                        <HomeIcon sx={{ display: { xs: 'flex', md: 'none' }, mr: 1 }} />
-                        HOME
+                        <GiPokerHand />
                     </Typography>
                     <Box sx={{ flexGrow: 1, display: { xs: 'none', md: 'flex' } }}>
                         {links.map((link) => (

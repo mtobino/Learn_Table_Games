@@ -1,7 +1,6 @@
 import {useEffect, useState} from "react";
 import {connect} from "react-redux";
 import {resetTheGame, startTheGame} from "../redux/thunks";
-import {isLoading} from "../redux/selectors";
 import PlayerCards from "../components/PlayerCards";
 import DealerCards from "../components/DealerCards";
 

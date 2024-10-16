@@ -114,6 +114,11 @@ export const dealerTurn = () => async (dispatch, getState) => {
     try {
         let state = getState();
         let dealerHand = state.blackjack.blackjackData.dealerData.hand;
+        // if the player has fully busted, then the dealer does not need to draw any cards
+        const playerBust = state.blackjack.blackjackData.playerData.hand.every(hand => hand.bust);
+        if(playerBust){
+            return;
+        }
 
         // Dealer continues drawing cards until they stand or bust
         while (!dealerHand.stand && !dealerHand.bust) {
